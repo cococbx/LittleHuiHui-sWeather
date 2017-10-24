@@ -13,4 +13,11 @@
     <string name="loading_fail">:( 加载失败了</string>
     <string name="China">中国</string>
     <string name="location_address">http://guolin.tech/api/china/</string>
+
+    <!--weather_activity-->
+    <string name="forecast_title">预报</string>
+    <string name="air_quality">空气质量</string>
+    <string name="AQI">AQI指数</string>
+    <string name="pm2.5">PM2.5指数</string>
+    <string name="living_suggestion">生活建议</string>
 </resources>

@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.cbx.littlehuihuisweather.db.City;
 import com.cbx.littlehuihuisweather.db.County;
 import com.cbx.littlehuihuisweather.db.Province;
+import com.cbx.littlehuihuisweather.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +20,7 @@ import org.json.JSONObject;
 public class Utility {
 
     /**
-     * 解析、处理服务器返回的省数据
+     * 解析、处理服务器返回的 省数据
      *
      * @param response
      * @return
@@ -43,7 +45,7 @@ public class Utility {
     }
 
     /**
-     * 解析、处理服务器返回的市数据
+     * 解析、处理服务器返回的 市数据
      *
      * @param response
      * @param provinceId
@@ -70,7 +72,8 @@ public class Utility {
     }
 
     /**
-     * 解析、处理服务器返回的县数据
+     * 解析、处理服务器返回的 县数据
+     *
      * @param response
      * @param cityId
      * @return
@@ -93,5 +96,23 @@ public class Utility {
             }
         }
         return false;
+    }
+
+    /**
+     * 解析天气json
+     * Gson().fromJson方法直接将json数据转换成weather对象
+     * @param response
+     * @return
+     */
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent, Weather.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
