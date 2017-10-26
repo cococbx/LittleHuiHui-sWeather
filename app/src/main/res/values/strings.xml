@@ -20,4 +20,17 @@
     <string name="AQI">AQI指数</string>
     <string name="pm2.5">PM2.5指数</string>
     <string name="living_suggestion">生活建议</string>
+    <string name="weather_key">d06f5d8021cd481f870ae00b6b9dfe6f</string>
+    <string name="weatherUrl_partOne">http://guolin.tech/api/weather?cityid=</string>
+    <string name="weatherUrl_partTwo">&amp;key=</string>
+    <string name="get_weather_failed">获取天气信息失败:(</string>
+    <string name="centigrade">℃</string>
+    <string name="air_qulty">空气指数：</string>
+    <string name="comf">舒适度指数：</string>
+    <string name="cw">洗车指数：</string>
+    <string name="drsg">穿衣指数：</string>
+    <string name="flu">感冒指数：</string>
+    <string name="sport">运动指数：</string>
+    <string name="trav">旅游指数：</string>
+    <string name="uv">紫外线指数：</string>
 </resources>
