@@ -1,16 +1,21 @@
 package com.cbx.littlehuihuisweather;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.cbx.littlehuihuisweather.gson.Forecast;
 import com.cbx.littlehuihuisweather.gson.Weather;
 import com.cbx.littlehuihuisweather.utils.HttpUtil;
@@ -61,26 +66,61 @@ public class WeatherActivity extends AppCompatActivity {
     @BindView(R.id.weather_layout)
     ScrollView weatherLayout;//天气界面滑动布局
 
+    @BindView(R.id.bing_pic_img)
+    ImageView bingImageView;//背景图
+    @BindView(R.id.swipe_refresh)
+    public SwipeRefreshLayout swipeRefresh;//下拉刷新控件
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= 21) {
+            View decorView = getWindow().getDecorView();//拿到布局view
+            //布局显示填充到状态栏位置，状态栏压在布局上面
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);//状态栏设置为透明
+        }
         setContentView(R.layout.activity_weather);
         ButterKnife.bind(this);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = sharedPreferences.getString("weather", null);//存储的天气json
+        final String weatherId;
         if (weatherString != null) {
             /*有数据缓存，直接解析天气数据*/
             Weather weather = Utility.handleWeatherResponse(weatherString);
+            weatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
         } else {
             /*无数据缓存，去服务器请求天气数据*/
-            String weatherId = getIntent().getStringExtra("weather_id");
+            weatherId = getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
+
+        String bingPic = sharedPreferences.getString("bing_pic", null);//存储的背景图
+        if (bingPic != null) {
+            Glide.with(this).load(bingPic).into(bingImageView);
+        } else {
+            loadBingPic();
+        }
+
+        //下拉刷新
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestWeather(weatherId);
+            }
+        });
     }
 
+    /**
+     * 从服务器请求天气数据
+     *
+     * @param weatherId
+     */
     public void requestWeather(final String weatherId) {
 
         String weatherUrl = getString(R.string.weatherUrl_partOne) + weatherId +
@@ -103,6 +143,7 @@ public class WeatherActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(WeatherActivity.this, getString(R.string.get_weather_failed), Toast.LENGTH_SHORT).show();
                         }
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
@@ -113,12 +154,48 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(WeatherActivity.this, getString(R.string.get_weather_failed), Toast.LENGTH_SHORT).show();
+                        swipeRefresh.setRefreshing(false);
                     }
                 });
             }
         });
+        loadBingPic();
     }
 
+    /**
+     * 拉取并加载bing每日一图
+     */
+    private void loadBingPic() {
+        String bingPicUrl = getString(R.string.bing_pic);
+        HttpUtil.sendOkHttpRequest(bingPicUrl, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String bingPic = response.body().string();
+                if (bingPic != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                            editor.putString("bing_pic", bingPic);
+                            editor.apply();
+                            Glide.with(WeatherActivity.this).load(bingPic).into(bingImageView);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * 加载、显示天气数据
+     *
+     * @param weather
+     */
     private void showWeatherInfo(Weather weather) {
 
         if (weather.basic != null) {

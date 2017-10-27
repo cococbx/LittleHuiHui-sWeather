@@ -33,4 +33,5 @@
     <string name="sport">运动指数：</string>
     <string name="trav">旅游指数：</string>
     <string name="uv">紫外线指数：</string>
+    <string name="bing_pic">http://guolin.tech/api/bing_pic</string>
 </resources>
