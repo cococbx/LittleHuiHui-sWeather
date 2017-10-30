@@ -1,14 +1,22 @@
 package com.cbx.littlehuihuisweather;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -16,12 +24,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.cbx.littlehuihuisweather.db.Province;
+import com.cbx.littlehuihuisweather.fragment.ChooseAreaFragment;
 import com.cbx.littlehuihuisweather.gson.Forecast;
 import com.cbx.littlehuihuisweather.gson.Weather;
 import com.cbx.littlehuihuisweather.utils.HttpUtil;
 import com.cbx.littlehuihuisweather.utils.Utility;
 
+import org.litepal.crud.DataSupport;
+
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,10 +84,33 @@ public class WeatherActivity extends AppCompatActivity {
     @BindView(R.id.swipe_refresh)
     public SwipeRefreshLayout swipeRefresh;//下拉刷新控件
 
+    @BindView(R.id.home_button)
+    Button homeButton;//选择城市按钮
+    @BindView(R.id.drawer_layout)
+    public DrawerLayout drawerLayout;//滑动菜单
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
+        /**
+         * 沉浸式状态栏
+         */
+        if (Build.VERSION.SDK_INT >= 21 && Build.VERSION.SDK_INT != Build.VERSION_CODES.M) {
+            //透明导航栏
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            //透明状态栏
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+            View decorView = getWindow().getDecorView();//拿到布局view
+            //布局显示填充到状态栏位置，状态栏压在布局上面
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);//状态栏设置为透明
+        }
+        /**
+         * android6.0沉浸式状态栏蒙灰问题
+         */
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.M) {
             View decorView = getWindow().getDecorView();//拿到布局view
             //布局显示填充到状态栏位置，状态栏压在布局上面
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
@@ -112,6 +148,13 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 requestWeather(weatherId);
+            }
+        });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.START);
             }
         });
     }

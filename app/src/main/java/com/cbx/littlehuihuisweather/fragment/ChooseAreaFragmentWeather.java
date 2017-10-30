@@ -17,8 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +37,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -49,7 +46,7 @@ import okhttp3.Response;
  * 遍历省市县数据
  * A simple {@link Fragment} subclass.
  */
-public class ChooseAreaFragment extends Fragment {
+public class ChooseAreaFragmentWeather extends Fragment {
 
     public static final int LEVEL_PROVINCE = 0;
     public static final int LEVEL_CITY = 1;
@@ -80,7 +77,7 @@ public class ChooseAreaFragment extends Fragment {
 
     private int currentLevel;//当前选中的级别
 
-    public ChooseAreaFragment() {
+    public ChooseAreaFragmentWeather() {
         // Required empty public constructor
     }
 
@@ -90,7 +87,7 @@ public class ChooseAreaFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_choose_area, container, false);
+        View view = inflater.inflate(R.layout.fragment_choose_area_weather, container, false);
         unbinder = ButterKnife.bind(this, view);
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
