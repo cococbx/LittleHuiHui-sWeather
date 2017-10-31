@@ -46,7 +46,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 /**
- * 遍历省市县数据
+ * 遍历省市县数据 第一次选择地区，将weatherId传给WeatherActivity
  * A simple {@link Fragment} subclass.
  */
 public class ChooseAreaFragment extends Fragment {

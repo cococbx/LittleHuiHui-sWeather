@@ -147,7 +147,13 @@ public class WeatherActivity extends AppCompatActivity {
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(weatherId);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this);
+                String weatherID = sharedPreferences.getString("weatherId",null);
+                if (weatherID != null) {
+                    requestWeather(weatherID);
+                }else {
+                    requestWeather(weatherId);
+                }
             }
         });
 
@@ -209,29 +215,29 @@ public class WeatherActivity extends AppCompatActivity {
      * 拉取并加载bing每日一图
      */
     private void loadBingPic() {
-        String bingPicUrl = getString(R.string.bing_pic);
-        HttpUtil.sendOkHttpRequest(bingPicUrl, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String bingPic = response.body().string();
-                if (bingPic != null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+//        String bingPicUrl = getString(R.string.bing_pic);
+//        HttpUtil.sendOkHttpRequest(bingPicUrl, new Callback() {
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException {
+//                final String bingPic = response.body().string();
+//                if (bingPic != null) {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                            editor.putString("bing_pic", bingPic);
+                            editor.putString("bing_pic", getString(R.string.bingUrl));
                             editor.apply();
-                            Glide.with(WeatherActivity.this).load(bingPic).into(bingImageView);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-        });
+                            Glide.with(WeatherActivity.this).load(getString(R.string.bingUrl)).into(bingImageView);
+//                        }
+//                    });
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                e.printStackTrace();
+//            }
+//        });
     }
 
     /**
